@@ -4,20 +4,29 @@ library(ggplot2)
 library(shinyWidgets)
 library(quantmod)
 library(plotly)
+library(shinydashboard)
+
 SYMBOLS <- stockSymbols()
 
 
-ui <- fluidPage(
-  titlePanel(title = h3("What if I invested?", 
-                        align = "center")),
-  selectInput("select", label = h3("Select A Stock Name"), 
-           choices = names(table(SYMBOLS$Name)), selected = 1),
-  hr(),
-  fluidRow(column(3, verbatimTextOutput("value")))
-)
-  br()
-  
- textInput("stock", label = h3("Input a stock that you want to consider"), value = ". . .")
+ui <-
+  dashboardPage(
+    dashboardHeader(title = "What if I invested?"),
+    dashboardSidebar(),
+    dashboardBody(
+      selectInput("select",
+                  label = h3("Select / Search A Stock Name "),
+                  choices = names(table(SYMBOLS$Name)),
+                  selected = 1),
+      
+      hr(),
+      
+      fluidRow(column(3, verbatimTextOutput("value")))
+      
+    )
+    
+  )
+
   
   
 
