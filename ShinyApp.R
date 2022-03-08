@@ -22,7 +22,13 @@ ui <-
       hr(),
       
       fluidRow(column(3, verbatimTextOutput("value")))
-      
+      basicPage(
+        h1("Stock Prices"),
+        textInput("stocks", "pick stock", "AAPL"),   
+        dateRangeInput("date", "date range ", start = "2013-01-01", end = "2022-01-01",min = "2007-01-01", max = "2022-02-01",format = "yyyy-mm-dd" ),
+        checkboxInput(inputId = "log", label = "log y axis", value = FALSE),  
+        plotOutput("plot")
+      ) 
     )
     
   )
@@ -33,7 +39,14 @@ ui <-
 
 server <- function(input, output, session) {
 output$value <- renderPrint({ SYMBOLS$Symbol[which(SYMBOLS$Name == input$select)] })
-  
-}
+  output$plot <- renderPlot({
+    data <- getSymbols(input$stocks,  
+                       from = input$date[1],
+                       to = input$date[2],
+                       auto.assign = FALSE   
+    )
+    chartSeries(data, theme = chartTheme("white"),
+                type = "line", log.scale = input$log, TA = NULL)
+  })
 
 shinyApp(ui, server)
