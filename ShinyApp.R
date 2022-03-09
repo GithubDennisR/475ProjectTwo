@@ -27,8 +27,11 @@ ui <-
         h1("Stock Prices"),
         textInput("stocks", "Input the ticker symbol of your choice", 
                   "FLWS"),   
-        dateRangeInput("date", "Choose a desired date range", start = "2013-01-01", 
-                       end = "2022-01-01",min = "2007-01-01", max = "2022-02-01",
+        dateRangeInput("date", "Choose the desired date range for your stock of 
+                       interest (Jan 2007 - Jan 2022)",
+                       start = "2013-01-01", 
+                       end = "2022-01-01",min = "2007-01-01", 
+                       max = "2022-02-01",
                        format = "yyyy-mm-dd" ),
         checkboxInput(inputId = "log", label = "log y axis", 
                       value = FALSE),  
