@@ -9,6 +9,10 @@ library(tidyquant)
 
 SYMBOLS <- stockSymbols()
 
+clean_names <- function(stocks) {
+  split_names = strsplit(names(stocks), split = '.', fixed = TRUE)
+  vapply(split_names, function(x) x[2], character(1))
+}
 
 ui <-
   dashboardPage( skin = "green",
