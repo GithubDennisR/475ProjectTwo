@@ -18,7 +18,11 @@ ui <-
                      menuItem("Stock Selection", tabName = "stockselect", 
                               icon = icon("dashboard")),
                      menuItem("Stock Prices Graphic", tabName = "graph", 
-                              icon = icon("table"))
+                              icon = icon("table")),
+                     menuItem("Feature 3", tabName = "feature3", 
+                              icon = icon("th")),
+                     menuItem("Feature 4", tabName = "feature4", 
+                              icon = icon("th"))
                    )
                  ),
                  dashboardBody(
@@ -60,7 +64,22 @@ ui <-
                                              value = FALSE),  
                                plotOutput("plot")
                              )
+                     ), 
+                     
+                     # Third tab content
+                     tabItem(tabName = "feature3",
+                             h2("Feature 3")
+                             
+                             
+                     ),
+                     
+                     # Fourth tab content
+                     tabItem(tabName = "feature4",
+                             h2("Feature 4")
+                             
+                             
                      )
+                     
                    )  
                    
                  )
