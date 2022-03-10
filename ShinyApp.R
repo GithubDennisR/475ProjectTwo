@@ -98,14 +98,18 @@ ui <-
                              basicPage(
                                textInput("stocks2", "Input the ticker symbol of your choice", 
                                          "FLWS"),   
-                               dateRangeInput("date2", "Choose the desired date range for your stock of 
-                       interest (Jan 2007 - Jan 2022)",
-                                              start = "2013-01-01", 
-                                              end = "2022-01-01",min = "2007-01-01", 
-                                              max = "2022-02-01",
-                                              format = "yyyy-mm-dd" ),
-                               plotlyOutput("changeplot"),
-                               verbatimTextOutput("changevalue")
+                               dateInput(inputId = "date2", label = "First Date (Minimum 2007-01-01) (Do Not Select Weekends as Market is Closed)",
+                                         ,value = "2014-01-10", format = "yyyy-mm-dd" ),
+                               dateInput(inputId = "date3",label = "Second Date",
+                                         format = "yyyy-mm-dd" ),
+                               h4("Change in $ Value over Time"),
+                               hr(),
+                               textOutput("DollarChange"),
+                               hr(),
+                               verbatimTextOutput("firstdatevalues"),
+                               verbatimTextOutput("seconddatevalues"),
+                               plotlyOutput("changeplot")
+                  
                              )
                              
                              
@@ -145,8 +149,8 @@ server <- function(input, output, session) {
     
   })
   output$changeplot <- renderPlotly({
-    data2<- getSymbols(input$stocks2, from = input$date2[1],
-                       to = input$date2[2], src = "yahoo",
+    data2<- getSymbols(input$stocks2, from = input$date2,
+                       to = input$date3, src = "yahoo",
                        auto.assign = FALSE)
     names(data2) <- clean_names(data2)
     p1 <- ggplot(data2, aes(Index, Close)) + 
@@ -157,17 +161,33 @@ server <- function(input, output, session) {
     ggplotly(p1)
     
   })
-  output$changevalue <- renderPrint({
-    close1 <- getSymbols(input$stocks2, from=input$date2[1],
-                         to = input$date2[1], src = "yahoo",
-                         auto.assign = FALSE)
-    close2 <- getSymbols(input$stocks2, from=input$date2[2],
-                         src = "yahoo",
+  output$firstdatevalues <- renderPrint({
+    close1 <- getSymbols(input$stocks2, from=input$date2,
+                         to = as.Date(input$date2) + 1, src = "yahoo",
                          auto.assign = FALSE)
     names(close1) <- clean_names(close1)
+    close1
+  })
+  output$seconddatevalues <- renderPrint({
+    close2 <- getSymbols(input$stocks2, from=input$date3,
+                         to = as.Date(input$date3) + 1,src = "yahoo",
+                         auto.assign = FALSE)
+    names(close2) <- clean_names(close2) 
+    close2
+  })
+  output$DollarChange <- renderPrint({
+    close1 <- getSymbols(input$stocks2, from=input$date2,
+                         to = as.Date(input$date2) + 1, src = "yahoo",
+                         auto.assign = FALSE)
+    names(close1) <- clean_names(close1)
+    close2 <- getSymbols(input$stocks2, from=input$date3,
+                         to = as.Date(input$date3) + 1,src = "yahoo",
+                         auto.assign = FALSE)
     names(close2) <- clean_names(close2)
-    difference <- (close2$Close - close1$Close)
-    difference
+  increaseValue <- as.double(close2$Close)-as.double(close1$Close)
+  increasePercent <- (as.double(close2$Close)-as.double(close1$Close))/as.double(close2$Close)*100
+  increasePercent <- round(increasePercent, 2)
+  noquote(paste(c("The difference in price between the start and end of the period selected is $", increaseValue, "(",increasePercent,"%)"), collapse = " "))
   })
 }
 shinyApp(ui, server)
