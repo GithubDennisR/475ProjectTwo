@@ -8,16 +8,6 @@ library(shinydashboard)
 library(tidyquant)
 library(flexdashboard)
 
-# close1 <- getSymbols("APPL",
-#                      src = "yahoo",
-#                      auto.assign = FALSE)
-# close2 <- getSymbols("APPL", from=2020-01-01,
-#                      src = "yahoo",
-#                      auto.assign = FALSE)
-# 
-# difference <- (close2$Close - close1$Close)
-# difference
-
 
 SYMBOLS <- stockSymbols()
 
@@ -30,12 +20,12 @@ clean_names <- function(stocks) {
 ui <-
   dashboardPage( skin = "green",
                  dashboardHeader(title = "What if I invested?", titleWidth = 400),
-                 dashboardSidebar(
+                 dashboardSidebar( width = 200,
                    sidebarMenu(
                      menuItem("Stock Selection", tabName = "stockselect", 
-                              icon = icon("dashboard")),
+                              icon = icon("th")),
                      menuItem("Stock Prices Graphic", tabName = "graph", 
-                              icon = icon("table")),
+                              icon = icon("th")),
                      menuItem("Volume Graphic", tabName = "feature3", 
                               icon = icon("th")),
                      menuItem("Stock Percent Change", tabName = "stockchange", 
@@ -54,6 +44,7 @@ ui <-
                    tabItems(
                      # First tab content
                      tabItem(tabName = "stockselect",
+                             h1("What is the ticker symbol of my stock?"),
                              selectInput("select",
                                          label = h3("Select / Search A Stock Name "),
                                          choices = names(table(SYMBOLS$Name)),
@@ -115,7 +106,7 @@ ui <-
                                plotlyOutput("changeplot"),
                                verbatimTextOutput("changevalue")
                              )
-                            
+                             
                              
                      )
                      
@@ -129,14 +120,14 @@ ui <-
 
 
 server <- function(input, output, session) {
-  output$value <- renderPrint({ SYMBOLS$Symbol[which(SYMBOLS$Name == input$select)] })
+  output$value <- renderText({ SYMBOLS$Symbol[which(SYMBOLS$Name == input$select)] })
   output$plot <- renderPlot({
     data <- getSymbols(input$stocks,  
                        from = input$date[1],
                        to = input$date[2],
                        auto.assign = FALSE   
     )
-    chartSeries(data, theme = chartTheme("white"),
+    chartSeries(data, theme = chartTheme("black"),
                 type = "line", log.scale = input$log, TA = NULL)
   })
   output$volumeplot <- renderPlotly({
@@ -156,17 +147,20 @@ server <- function(input, output, session) {
     
   })
   output$changevalue <- renderPrint({
-  close1 <- getSymbols(input$stocks2, from=input$date2[1],
-                        to = input$date2[1], src = "yahoo",
-                       auto.assign = FALSE)
-  close2 <- getSymbols(input$stocks2, from=input$date2[2],
-                        src = "yahoo",
-                       auto.assign = FALSE)
-  names(close1) <- clean_names(close1)
-  names(close2) <- clean_names(close2)
-  difference <- (close2$Close - close1$Close)
-  difference
+    close1 <- getSymbols(input$stocks2, from=input$date2[1],
+                         to = input$date2[1], src = "yahoo",
+                         auto.assign = FALSE)
+    close2 <- getSymbols(input$stocks2, from=input$date2[2],
+                         src = "yahoo",
+                         auto.assign = FALSE)
+    names(close1) <- clean_names(close1)
+    names(close2) <- clean_names(close2)
+    difference <- (close2$Close - close1$Close)
+    difference
   })
 }
 shinyApp(ui, server)
+
+
+
 
