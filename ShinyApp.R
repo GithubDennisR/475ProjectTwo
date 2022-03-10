@@ -6,6 +6,18 @@ library(quantmod)
 library(plotly)
 library(shinydashboard)
 library(tidyquant)
+library(flexdashboard)
+
+# close1 <- getSymbols("APPL",
+#                      src = "yahoo",
+#                      auto.assign = FALSE)
+# close2 <- getSymbols("APPL", from=2020-01-01,
+#                      src = "yahoo",
+#                      auto.assign = FALSE)
+# 
+# difference <- (close2$Close - close1$Close)
+# difference
+
 
 SYMBOLS <- stockSymbols()
 
@@ -26,7 +38,7 @@ ui <-
                               icon = icon("table")),
                      menuItem("Volume Graphic", tabName = "feature3", 
                               icon = icon("th")),
-                     menuItem("Feature 4", tabName = "feature4", 
+                     menuItem("Stock Percent Change", tabName = "stockchange", 
                               icon = icon("th"))
                    )
                  ),
@@ -83,14 +95,27 @@ ui <-
                                               end = "2022-01-01",min = "2007-01-01", 
                                               max = "2022-02-01",
                                               format = "yyyy-mm-dd" ),
+                               verbatimTextOutput("percentchange"),
                                plotlyOutput("volumeplot")
                              )
                      ),
                      
                      # Fourth tab content
-                     tabItem(tabName = "feature4",
-                             h2("Feature 4")
-                             
+                     tabItem(tabName = "stockchange",
+                             h2("Stock Percent Change"),
+                             basicPage(
+                               textInput("stocks2", "Input the ticker symbol of your choice", 
+                                         "FLWS"),   
+                               dateRangeInput("date2", "Choose the desired date range for your stock of 
+                       interest (Jan 2007 - Jan 2022)",
+                                              start = "2013-01-01", 
+                                              end = "2022-01-01",min = "2007-01-01", 
+                                              max = "2022-02-01",
+                                              format = "yyyy-mm-dd" ),
+                               plotlyOutput("changeplot"),
+                               verbatimTextOutput("changevalue")
+                             )
+                            
                              
                      )
                      
@@ -121,6 +146,26 @@ server <- function(input, output, session) {
     names(data1) <- clean_names(data1)
     autoplot(data1$Volume) %>% ggplotly() 
     
+  })
+  output$changeplot <- renderPlotly({
+    data2<- getSymbols(input$stocks2, from = input$date2[1],
+                       to = input$date2[2], src = "yahoo",
+                       auto.assign = FALSE)
+    names(data2) <- clean_names(data2)
+    autoplot(data2$Close) %>% ggplotly() 
+    
+  })
+  output$changevalue <- renderPrint({
+  close1 <- getSymbols(input$stocks2, from=input$date2[1],
+                        to = input$date2[1], src = "yahoo",
+                       auto.assign = FALSE)
+  close2 <- getSymbols(input$stocks2, from=input$date2[2],
+                        src = "yahoo",
+                       auto.assign = FALSE)
+  names(close1) <- clean_names(close1)
+  names(close2) <- clean_names(close2)
+  difference <- (close2$Close - close1$Close)
+  difference
   })
 }
 shinyApp(ui, server)
