@@ -7,6 +7,7 @@ library(plotly)
 library(shinydashboard)
 library(tidyquant)
 library(flexdashboard)
+library(ggeasy)
 
 
 SYMBOLS <- stockSymbols()
@@ -21,16 +22,16 @@ ui <-
   dashboardPage( skin = "green",
                  dashboardHeader(title = "What if I invested?", titleWidth = 400),
                  dashboardSidebar( width = 200,
-                   sidebarMenu(
-                     menuItem("Stock Selection", tabName = "stockselect", 
-                              icon = icon("th")),
-                     menuItem("Stock Prices Graphic", tabName = "graph", 
-                              icon = icon("th")),
-                     menuItem("Volume Graphic", tabName = "feature3", 
-                              icon = icon("th")),
-                     menuItem("Stock Percent Change", tabName = "stockchange", 
-                              icon = icon("th"))
-                   )
+                                   sidebarMenu(
+                                     menuItem("Stock Selection", tabName = "stockselect", 
+                                              icon = icon("th")),
+                                     menuItem("Stock Prices Graphic", tabName = "graph", 
+                                              icon = icon("th")),
+                                     menuItem("Volume Graphic", tabName = "feature3", 
+                                              icon = icon("th")),
+                                     menuItem("Stock Percent Change", tabName = "stockchange", 
+                                              icon = icon("th"))
+                                   )
                  ),
                  dashboardBody(
                    tags$head(tags$style(HTML('
@@ -135,7 +136,12 @@ server <- function(input, output, session) {
                        to = input$date1[2], src = "yahoo",
                        auto.assign = FALSE)
     names(data1) <- clean_names(data1)
-    autoplot(data1$Volume) %>% ggplotly() 
+    p <- ggplot(data1, aes(Index, Volume)) + 
+      geom_line(color = "green") + 
+      ggeasy::easy_all_text_color(color = "yellow")+
+      theme(plot.background = element_rect(fill = "black"), 
+            panel.background = element_rect(fill = "black"))
+    ggplotly(p)
     
   })
   output$changeplot <- renderPlotly({
@@ -143,7 +149,12 @@ server <- function(input, output, session) {
                        to = input$date2[2], src = "yahoo",
                        auto.assign = FALSE)
     names(data2) <- clean_names(data2)
-    autoplot(data2$Close) %>% ggplotly() 
+    p1 <- ggplot(data2, aes(Index, Close)) + 
+      geom_line(color = "green") + 
+      ggeasy::easy_all_text_color(color = "yellow")+
+      theme(plot.background = element_rect(fill = "black"), 
+            panel.background = element_rect(fill = "black"))
+    ggplotly(p1)
     
   })
   output$changevalue <- renderPrint({
@@ -160,7 +171,6 @@ server <- function(input, output, session) {
   })
 }
 shinyApp(ui, server)
-
 
 
 
