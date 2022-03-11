@@ -4,10 +4,12 @@ library(ggplot2)
 library(shinyWidgets)
 library(quantmod)
 library(plotly)
+library(dplyr)
 library(shinydashboard)
 library(tidyquant)
 library(flexdashboard)
 library(ggeasy)
+library(ggthemes)
 
 
 SYMBOLS <- stockSymbols()
@@ -24,13 +26,13 @@ ui <-
                  dashboardSidebar( width = 200,
                                    sidebarMenu(
                                      menuItem("Stock Selection", tabName = "stockselect", 
-                                              icon = icon("th")),
+                                              icon = icon("chart-line")),
                                      menuItem("Stock Prices Graphic", tabName = "graph", 
-                                              icon = icon("th")),
+                                              icon = icon("chart-line")),
                                      menuItem("Volume Graphic", tabName = "feature3", 
-                                              icon = icon("th")),
+                                              icon = icon("chart-line")),
                                      menuItem("Stock Percent Change", tabName = "stockchange", 
-                                              icon = icon("th"))
+                                              icon = icon("chart-line"))
                                    )
                  ),
                  dashboardBody(
@@ -99,7 +101,7 @@ ui <-
                                textInput("stocks2", "Input the ticker symbol of your choice", 
                                          "FLWS"),   
                                dateInput(inputId = "date2", label = "First Date (Minimum 2007-01-01) (Do Not Select Weekends as Market is Closed)",
-                                         ,value = "2014-01-10", format = "yyyy-mm-dd" ),
+                                         value = "2014-01-10", format = "yyyy-mm-dd" ),
                                dateInput(inputId = "date3",label = "Second Date",
                                          format = "yyyy-mm-dd" ),
                                h4("Change in $ Value over Time"),
@@ -142,7 +144,10 @@ server <- function(input, output, session) {
     names(data1) <- clean_names(data1)
     p <- ggplot(data1, aes(Index, Volume)) + 
       geom_line(color = "green") + 
-      ggeasy::easy_all_text_color(color = "yellow")+
+      theme_fivethirtyeight()+
+      labs(title = "The Volume of My Stock", y = "Volume") +
+      ggeasy::easy_center_title() +
+      ggeasy::easy_all_text_color(color = "yellow") +
       theme(plot.background = element_rect(fill = "black"), 
             panel.background = element_rect(fill = "black"))
     ggplotly(p)
@@ -155,7 +160,10 @@ server <- function(input, output, session) {
     names(data2) <- clean_names(data2)
     p1 <- ggplot(data2, aes(Index, Close)) + 
       geom_line(color = "green") + 
-      ggeasy::easy_all_text_color(color = "yellow")+
+      theme_fivethirtyeight()+
+      labs(title = "The Close of My Stock", y = "Close") +
+      ggeasy::easy_center_title() +
+      ggeasy::easy_all_text_color(color = "yellow") +
       theme(plot.background = element_rect(fill = "black"), 
             panel.background = element_rect(fill = "black"))
     ggplotly(p1)
@@ -175,7 +183,7 @@ server <- function(input, output, session) {
     names(close2) <- clean_names(close2) 
     close2
   })
-  output$DollarChange <- renderPrint({
+  output$DollarChange <- renderText({
     close1 <- getSymbols(input$stocks2, from=input$date2,
                          to = as.Date(input$date2) + 1, src = "yahoo",
                          auto.assign = FALSE)
