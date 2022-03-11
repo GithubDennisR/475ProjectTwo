@@ -193,6 +193,7 @@ server <- function(input, output, session) {
                          auto.assign = FALSE)
     names(close2) <- clean_names(close2)
   increaseValue <- as.double(close2$Close)-as.double(close1$Close)
+  increaseValue <- round(increaseValue,2)
   increasePercent <- (as.double(close2$Close)-as.double(close1$Close))/as.double(close2$Close)*100
   increasePercent <- round(increasePercent, 2)
   noquote(paste(c("The difference in price between the start and end of the period selected is $", increaseValue, "(",increasePercent,"%)"), collapse = " "))
